@@ -7,8 +7,8 @@ This is an adapter for [seneca-web](https://github.com/senecajs/seneca-web/) usi
 
 ## Installation
 
-Peer dependencies have been specified for `express`, and `seneca-web`
-They need to be present for this to work at all.
+A peer dependency has been specified for `seneca-web`
+And of course `express` must be present for this to work at all.
 
 ```
 npm install --save express
