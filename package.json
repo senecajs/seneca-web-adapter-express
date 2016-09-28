@@ -39,8 +39,8 @@
   "files": [
     "LICENSE",
     "README.md",
-    "web.js",
-    "lib"
+    "seneca-web-adapter-express.js",
+    "read-body.js"
   ],
   "dependencies": {
     "lodash": "^4.15.0"
