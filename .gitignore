@@ -1,0 +1,10 @@
+.vscode
+.idea
+.DS_Store
+
+*~
+*.log
+coverage.html
+
+node_modules
+docs/annotated

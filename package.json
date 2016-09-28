@@ -1,0 +1,77 @@
+{
+  "name": "seneca-web-adapter-express",
+  "version": "1.0.0",
+  "description": "seneca-web adapter for express",
+  "keywords": [
+    "seneca",
+    "web",
+    "adapter",
+    "express"
+  ],
+  "author": "Richard Rodger (https://github.com/rjrodger)",
+  "contributors": [
+    "Mircea Alexandru (http://alexandrumircea.ro)",
+    "Dean McDonnell (http://github.com/mcdonnelldean)",
+    "Mihai Dima (https://github.com/mihaidma)",
+    "Michael Robinson (https://github.com/faceleg)",
+    "Wyatt Preul (https://github.com/geek)",
+    "Cristian Kiss (https://github.com/ckiss)",
+    "Shane Lacey (https://github.com/shanel262)",
+    "William P. Riley-Land (https://github.com/wprl)",
+    "Adrien Becchis (https://github.com/AdrieanKhisbe)",
+    "Marius Ursache (https://github.com/bamse16)",
+    "Vito Tardia (https://github.com/vtardia)",
+    "Michele Capra (https://github.com/piccoloaiutante)",
+    "David Mark Clements (https://github.com/davidmarkclements)",
+    "Reto Inderbitzin (https://github.com/indr)",
+    "David Gonzalez (http://github.com/dgonzalez)",
+    "Tyler Waters (https://github.com/tswaters)"
+  ],
+  "license": "MIT",
+  "main": "seneca-web-adapter-express.js",
+  "scripts": {
+    "test": "lab -v -L -t 80 -m 5000",
+    "test-debug": "node --debug-brk=5858 node_modules/lab/bin/lab -v -m 5000000",
+    "coveralls": "lab -s -r lcov | coveralls",
+    "coverage": "lab -v -L -r html > docs/coverage.html",
+    "annotate": "docco web.js -o docs/annotated"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "web.js",
+    "lib"
+  ],
+  "dependencies": {
+    "lodash": "^4.15.0"
+  },
+  "peerDependencies": {
+    "seneca-web": "^1.0.0",
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
+    "body-parser": "^1.15.2",
+    "code": "^3.0.2",
+    "cookie-parser": "^1.4.3",
+    "coveralls": "^2.11.12",
+    "docco": "^0.7.0",
+    "eslint-config-seneca": "^3.0.0",
+    "eslint-plugin-hapi": "^4.0.0",
+    "eslint-plugin-standard": "^2.0.0",
+    "express": "^4.14.0",
+    "lab": "^11.0.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "pre-commit": "^1.1.3",
+    "request": "^2.74.0",
+    "seneca": "plugin",
+    "seneca-web": "github:senecajs/seneca-web"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/senecajs/seneca-web-adapter-express.git"
+  },
+  "pre-commit": [
+    "test"
+  ]
+}
