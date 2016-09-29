@@ -156,4 +156,31 @@ describe('express', () => {
       })
     })
   })
+
+  it('should redirect properly', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          redirect: {
+            GET: true,
+            redirect: '/'
+          }
+        }
+      }
+    }
+
+    si.add('role:test,cmd:redirect', (msg, reply) => reply())
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      Request.get('http://127.0.0.1:3000/redirect', {followRedirect: false}, (err, res, body) => {
+        if (err) return done(err)
+        expect(res.headers.location).to.exist()
+        expect(res.headers.location).to.equal('/')
+        done()
+      })
+    })
+  })
 })
