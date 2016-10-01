@@ -21,14 +21,14 @@ describe('express', () => {
   let app = null
 
   beforeEach(done => {
-    server = Express()
-    app = server.listen(3000, done)
-    si = Seneca({log: 'test'})
-    si.use(Web, {adapter: require('..'), context: server})
+    app = Express()
+    server = app.listen(3000, done)
+    si = Seneca({log: 'silent'})
+    si.use(Web, {adapter: require('..'), context: app})
   })
 
   afterEach(done => {
-    app.close(done)
+    server.close(done)
   })
 
   it('by default routes autoreply', (done) => {
@@ -140,7 +140,7 @@ describe('express', () => {
       }
     }
 
-    server.use(BodyParser.json())
+    app.use(BodyParser.json())
 
     si.add('role:test,cmd:echo', (msg, reply) => {
       reply(null, msg.args.body)
@@ -179,6 +179,36 @@ describe('express', () => {
         if (err) return done(err)
         expect(res.headers.location).to.exist()
         expect(res.headers.location).to.equal('/')
+        done()
+      })
+    })
+  })
+
+  it('should handle custom errors properly', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          boom: true
+        }
+      }
+    }
+
+    si.add('role:test,cmd:boom', (msg, reply) => reply(new Error('aw snap!')))
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      app.use((err, req, res, next) => {
+        if (res.headersSend) { return next(err) }
+        res.status(400).send({message: err.orig.message.replace('gate-executor: ', '')})
+      })
+
+      Request.get('http://127.0.0.1:3000/boom', {followRedirect: false}, (err, res, body) => {
+        if (err) return done(err)
+        body = JSON.parse(body)
+        expect(res.statusCode).to.equal(400)
+        expect(body).to.be.equal({message: 'aw snap!'})
         done()
       })
     })
