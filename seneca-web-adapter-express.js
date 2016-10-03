@@ -41,7 +41,7 @@ module.exports = function express (options, context, auth, routes, done) {
 
 // All routes ultimately get handled by this handler
 // if they have not already be redirected or responded.
-function handleRoute (seneca, options, request, reply, route) {
+function handleRoute (seneca, options, request, reply, route, next) {
   if (options.parseBody) { return ReadBody(request, finish) }
   finish(null, request.body || {})
 
@@ -50,7 +50,7 @@ function handleRoute (seneca, options, request, reply, route) {
   // but doesn't impact loading one in.
   function finish (err, body) {
     if (err) {
-      return reply.status(500).send(err)
+      return next(err)
     }
 
     // This is what the seneca handler will get
@@ -71,7 +71,7 @@ function handleRoute (seneca, options, request, reply, route) {
     // Call the seneca action specified in the config
     seneca.act(route.pattern, payload, (err, response) => {
       if (err) {
-        return reply.status(500).send(err)
+        return next(err)
       }
 
       // Redirect or reply depending on config.
@@ -87,8 +87,8 @@ function handleRoute (seneca, options, request, reply, route) {
 
 // Unsecured routes just call the handler directly, no magic.
 function unsecuredRoute (seneca, options, context, method, route) {
-  context[method](route.path, (request, reply) => {
-    handleRoute(seneca, options, request, reply, route)
+  context[method](route.path, (request, reply, next) => {
+    handleRoute(seneca, options, request, reply, route, next)
   })
 }
 
@@ -102,8 +102,8 @@ function authRoute (seneca, options, context, method, route, auth) {
   }
 
   const strategy = auth.authenticate(route.auth.strategy, opts)
-  context[method](route.path, strategy, (request, reply) => {
-    handleRoute(seneca, options, request, reply, route)
+  context[method](route.path, strategy, (request, reply, next) => {
+    handleRoute(seneca, options, request, reply, route, next)
   })
 }
 
@@ -111,11 +111,11 @@ function authRoute (seneca, options, context, method, route, auth) {
 // general practices. Req.logout() clears this. The handler will
 // redirect to a fail redirect in the case of unauthenticated calls.
 function securedRoute (seneca, options, context, method, route) {
-  context[method](route.path, (request, reply) => {
+  context[method](route.path, (request, reply, next) => {
     if (!request.user) {
       return reply.redirect(route.secure.fail)
     }
 
-    handleRoute(seneca, options, request, reply, route)
+    handleRoute(seneca, options, request, reply, route, next)
   })
 }
