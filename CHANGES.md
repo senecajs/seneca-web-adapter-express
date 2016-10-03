@@ -1,4 +1,4 @@
-## 1.0.2 2016-10-01
+## 1.0.2 2016-10-02
 
 * Allow host application to handle errors (#2)
 * Update peerDependency to work with seneca-web@2.x (thanks @gknedo)
