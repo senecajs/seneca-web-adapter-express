@@ -16,6 +16,10 @@ npm install --save seneca-web
 npm install --save seneca-web-adapter-express
 ```
 
+##UPD
+
+Added ability to use plugin with express requests and seneca messages.
+
 ## Usage
 
 Please refer to the seneca-web documentation on how to load routes.
