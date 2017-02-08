@@ -56,17 +56,12 @@ function handleRoute (seneca, options, request, reply, route, next) {
     // This is what the seneca handler will get
     // Note! request$ and response$ will be stripped
     // if the message is sent over transport.
-    const payload = {
-      request$: request,
-      response$: reply,
-      args: {
-        body: body,
-        route: route,
-        params: request.params,
-        query: request.query,
-        user: request.user || null
-      }
-    }
+    const payload = Object.assign(
+        {},
+        request.params,
+        request.query,
+        {request$: request, response$: reply, route$: route, body}
+    )
 
     // Call the seneca action specified in the config
     seneca.act(route.pattern, payload, (err, response) => {
