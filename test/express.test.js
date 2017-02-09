@@ -111,7 +111,7 @@ describe('express', () => {
     }
 
     si.add('role:test,cmd:echo', (msg, reply) => {
-      reply(null, {value: msg.body})
+      reply(null, {value: msg.args.body})
     })
 
     si.act('role:web', config, (err, reply) => {
@@ -143,7 +143,7 @@ describe('express', () => {
     app.use(BodyParser.json())
 
     si.add('role:test,cmd:echo', (msg, reply) => {
-      reply(null, msg.body)
+      reply(null, msg.args.body)
     })
 
     si.act('role:web', config, (err, reply) => {

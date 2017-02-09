@@ -39,7 +39,7 @@ const Routes = [{
 
 function AuthPlugin () {
   const si = this
-  si.add('role:admin,cmd:profile', (msg, cb) => cb(null, msg.request$.user))
+  si.add('role:admin,cmd:profile', (msg, cb) => cb(null, msg.args.user))
   si.add('role:admin,cmd:home', (msg, cb) => cb(null, {msg: 'please login'}))
   return {name: 'AuthPlugin'}
 }
