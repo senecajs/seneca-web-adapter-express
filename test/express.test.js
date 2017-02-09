@@ -160,6 +160,34 @@ describe('express', () => {
     })
   })
 
+  it('check post request payload without body parser', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          ask: {
+            POST: true
+          }
+        }
+      }
+    }
+
+
+    si.add('role:test,cmd:ask', (msg, reply) => {
+      reply(null, {answer: msg.answer})
+    })
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      Request.post('http://127.0.0.1:3000/ask', {json: {answer: 42}}, (err, res, body) => {
+        if (err) return done(err)
+        expect(body.answer).to.be.equal(undefined)
+        done()
+      })
+    })
+  })
+
   it('post without body parser defined', (done) => {
     var config = {
       routes: {
