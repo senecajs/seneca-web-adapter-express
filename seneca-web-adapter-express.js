@@ -60,6 +60,7 @@ function handleRoute (seneca, options, request, reply, route, next) {
       {},
       request.params,
       request.query,
+      body !== null && typeof body === 'object' ? body : {},
       {
         request$: request,
         response$: reply,

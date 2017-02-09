@@ -98,6 +98,68 @@ describe('express', () => {
     })
   })
 
+  it('check get request payload', (done) => {
+    var config = {
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          ask: {
+            GET: true
+          }
+        }
+      }
+    }
+
+    si.add('role:test,cmd:ask', (msg, reply) => {
+      reply(null, {answer: parseInt(msg.answer, 0)})
+    })
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      Request.get('http://127.0.0.1:3000/ask?answer=42', (err, res, body) => {
+        if (err) return done(err)
+
+        body = JSON.parse(body)
+
+        expect(body.answer).to.be.equal(42)
+        done()
+      })
+    })
+  })
+
+  it('check post request payload', (done) => {
+    var config = {
+      options: {
+        parseBody: false
+      },
+      routes: {
+        pin: 'role:test,cmd:*',
+        map: {
+          ask: {
+            POST: true
+          }
+        }
+      }
+    }
+
+    app.use(BodyParser.json())
+
+    si.add('role:test,cmd:ask', (msg, reply) => {
+      reply(null, {answer: msg.answer})
+    })
+
+    si.act('role:web', config, (err, reply) => {
+      if (err) return done(err)
+
+      Request.post('http://127.0.0.1:3000/ask', {json: {answer: 42}}, (err, res, body) => {
+        if (err) return done(err)
+        expect(body.answer).to.be.equal(42)
+        done()
+      })
+    })
+  })
+
   it('post without body parser defined', (done) => {
     var config = {
       routes: {
