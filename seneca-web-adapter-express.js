@@ -12,6 +12,10 @@ module.exports = function express (options, context, auth, routes, done) {
     return done(new Error('no context provided'))
   }
 
+  const logger = seneca.log.hasOwnProperty(options.loglevel)
+    ? seneca.log[options.loglevel]
+    : () => {}
+
   // Routes have methods as an array, we need
   // to loop once per route, per method to get
   // all of the routes correctly.
@@ -20,6 +24,8 @@ module.exports = function express (options, context, auth, routes, done) {
       // lowercase the method so we can use it
       // ala server[method] aka server.get()
       method = _.toLower(method)
+
+      logger(`Mounting ${method}: ${route.path}`)
 
       // There are 3 individual handlers depending
       // on if the route is for authorization, is
