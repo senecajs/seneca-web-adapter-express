@@ -20,11 +20,24 @@ describe('express', () => {
   let server = null
   let app = null
 
+  const middleware = {
+    head: function (req, res, next) {
+      res.type = 'application/json'
+      res.status = 200
+      next()
+    },
+    body: function (req, res) {
+      res.json({success: true})
+    }
+  }
+
   beforeEach(done => {
     app = Express()
-    server = app.listen(3000, done)
-    si = Seneca({log: 'silent'})
-    si.use(Web, {adapter: require('..'), context: app})
+    server = app.listen(3000, () => {
+      si = Seneca({log: 'silent'})
+      si.use(Web, {adapter: require('..'), context: app, middleware})
+      si.ready(done)
+    })
   })
 
   afterEach(done => {
@@ -210,6 +223,92 @@ describe('express', () => {
         expect(res.statusCode).to.equal(400)
         expect(body).to.be.equal({message: 'aw snap!'})
         done()
+      })
+    })
+  })
+
+  describe('middleware', () => {
+    it('blows up on invalid middleware input', done => {
+      var config = {
+        routes: {
+          pin: 'role:test,cmd:*',
+          middleware: ['total not valid'],
+          map: {
+            ping: true
+          }
+        }
+      }
+      si.act('role:web', config, (err, reply) => {
+        expect(err.details.message).to.equal('expected valid middleware, got total not valid')
+        done()
+      })
+    })
+
+    it('should call middleware routes properly - passing as strings', done => {
+      var config = {
+        routes: {
+          pin: 'role:test,cmd:*',
+          middleware: ['head', 'body'],
+          map: {
+            ping: true
+          }
+        }
+      }
+
+      si.add('role:test,cmd:ping', (msg, reply) => {
+        reply(null, {res: 'ping!'})
+      })
+
+      si.act('role:web', config, (err, reply) => {
+        if (err) return done(err)
+
+        Request('http://127.0.0.1:3000/ping', (err, res, body) => {
+          if (err) return done(err)
+          body = JSON.parse(body)
+          expect(res.statusCode).to.equal(200)
+          expect(body).to.be.equal({success: true})
+          done()
+        })
+      })
+    })
+    it('should call middleware routes properly - passing as functions', done => {
+      var config = {
+        routes: {
+          pin: 'role:test,cmd:*',
+          map: {
+            ping: true
+          }
+        }
+      }
+
+      si.add('role:test,cmd:ping', (msg, reply) => {
+        reply(null, {res: 'ping!'})
+      })
+
+      si.add('role:web,routes:*', function (msg, cb) {
+        msg.routes.middleware = [
+          function (req, res, next) {
+            res.type = 'application/json'
+            res.status = 200
+            next()
+          },
+          function (req, res) {
+            res.json({success: true})
+          }
+        ]
+        this.prior(msg, cb)
+      })
+
+      si.act('role:web', config, (err, reply) => {
+        if (err) return done(err)
+
+        Request('http://127.0.0.1:3000/ping', (err, res, body) => {
+          if (err) return done(err)
+          body = JSON.parse(body)
+          expect(res.statusCode).to.equal(200)
+          expect(body).to.be.equal({success: true})
+          done()
+        })
       })
     })
   })
