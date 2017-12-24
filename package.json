@@ -34,7 +34,8 @@
     "test-debug": "node --debug-brk=5858 node_modules/lab/bin/lab -v -m 5000000",
     "coveralls": "lab -s -r lcov | coveralls",
     "coverage": "lab -v -L -r html > docs/coverage.html",
-    "annotate": "docco web.js -o docs/annotated"
+    "annotate": "docco web.js -o docs/annotated",
+    "prettier": "prettier --write --no-semi --single-quote seneca-web-adapter-express.js test/*.js"
   },
   "files": [
     "LICENSE",
@@ -63,6 +64,7 @@
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pre-commit": "^1.1.3",
+    "prettier": "^1.9.2",
     "request": "^2.74.0",
     "seneca": "plugin",
     "seneca-web": "^2.2.0",
