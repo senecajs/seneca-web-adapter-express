@@ -73,8 +73,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/senecajs/seneca-web-adapter-express.git"
-  },
-  "pre-commit": [
-    "test"
-  ]
+  }
 }
