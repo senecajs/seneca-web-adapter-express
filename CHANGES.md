@@ -1,3 +1,12 @@
+## 1.1.2 2018-09-09
+
+* Update dependencies / dev tooling.
+* Travis builds updated: drop node 4, add node 10.
+
+## 1.1.1 2018-01-05
+
+* Update dependencies
+
 ## 1.1.0 2017-12-03
 
 * Adds support for middleware (#13)
