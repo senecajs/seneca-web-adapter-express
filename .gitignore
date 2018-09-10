@@ -4,7 +4,8 @@
 
 *~
 *.log
-coverage.html
 
 node_modules
 docs/annotated
+docs/coverage
+.nyc_output

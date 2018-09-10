@@ -30,11 +30,12 @@
   "license": "MIT",
   "main": "seneca-web-adapter-express.js",
   "scripts": {
-    "test": "lab -v -L -t 80 -m 5000",
-    "test-debug": "node --debug-brk=5858 node_modules/lab/bin/lab -v -m 5000000",
-    "coveralls": "lab -s -r lcov | coveralls",
-    "coverage": "lab -v -L -r html > docs/coverage.html",
-    "annotate": "docco web.js -o docs/annotated",
+    "pretest": "eslint .",
+    "test": "mocha",
+    "test-debug": "node --inspect-brk node_modules/mocha/bin/mocha --no-timeouts",
+    "coveralls": "nyc --reporter=text-lcov npm test | coveralls",
+    "coverage": "nyc --reporter=html --report-dir=docs/coverage npm test",
+    "annotate": "docco seneca-web-adapter-express.js -o docs/annotated",
     "prettier": "prettier --write --no-semi --single-quote seneca-web-adapter-express.js test/*.js"
   },
   "files": [
@@ -44,34 +45,39 @@
     "read-body.js"
   ],
   "dependencies": {
-    "lodash": "^4.15.0"
+    "lodash": "^4.17.10"
   },
   "peerDependencies": {
     "seneca-web": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
     "body-parser": "^1.15.2",
-    "code": "^3.0.2",
     "cookie-parser": "^1.4.3",
-    "coveralls": "^2.11.12",
+    "coveralls": "^3.0.2",
     "docco": "^0.8.0",
-    "eslint-config-seneca": "^3.0.0",
-    "eslint-plugin-hapi": "^4.0.0",
-    "eslint-plugin-standard": "^2.0.0",
+    "eslint": "^5.5.0",
     "express": "^4.14.0",
     "express-session": "^1.14.1",
-    "lab": "^13.1.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0",
     "pre-commit": "^1.1.3",
     "prettier": "^1.9.2",
-    "request": "^2.74.0",
-    "seneca": "plugin",
+    "request": "^2.88.0",
+    "seneca": "^3.7.0",
     "seneca-web": "^2.2.0",
     "sinon": "^1.17.6"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/senecajs/seneca-web-adapter-express.git"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 80,
+    "statements": 80,
+    "functions": 80,
+    "branches": 80
   }
 }

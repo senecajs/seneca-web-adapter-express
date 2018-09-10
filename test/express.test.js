@@ -1,19 +1,11 @@
 'use strict'
 
-const Code = require('code')
-const Lab = require('lab')
 const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('seneca-web')
 const Express = require('express')
 const BodyParser = require('body-parser')
-
-const expect = Code.expect
-const lab = (exports.lab = Lab.script())
-const describe = lab.describe
-const it = lab.it
-const beforeEach = lab.beforeEach
-const afterEach = lab.afterEach
+const assert = require('assert')
 
 describe('express', () => {
   let si = null
@@ -58,7 +50,7 @@ describe('express', () => {
       reply(null, { res: 'pong!' })
     })
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       Request('http://127.0.0.1:3000/ping', (err, res, body) => {
@@ -66,7 +58,7 @@ describe('express', () => {
 
         body = JSON.parse(body)
 
-        expect(body).to.be.equal({ res: 'pong!' })
+        assert.deepEqual(body, { res: 'pong!' })
         done()
       })
     })
@@ -91,20 +83,20 @@ describe('express', () => {
       reply(null, { res: 'ping!' })
     })
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       Request('http://127.0.0.1:3000/one', (err, res, body) => {
         if (err) return done(err)
 
         body = JSON.parse(body)
-        expect(body).to.be.equal({ res: 'pong!' })
+        assert.deepEqual(body, { res: 'pong!' })
 
         Request('http://127.0.0.1:3000/two', (err, res, body) => {
           if (err) return done(err)
 
           body = JSON.parse(body)
-          expect(body).to.be.equal({ res: 'ping!' })
+          assert.deepEqual(body, { res: 'ping!' })
           done()
         })
       })
@@ -127,7 +119,7 @@ describe('express', () => {
       reply(null, { value: msg.args.body })
     })
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       Request.post(
@@ -135,7 +127,7 @@ describe('express', () => {
         { json: { foo: 'bar' } },
         (err, res, body) => {
           if (err) return done(err)
-          expect(body.value).to.be.equal('{"foo":"bar"}')
+          assert.deepEqual(body.value, '{"foo":"bar"}')
           done()
         }
       )
@@ -163,7 +155,7 @@ describe('express', () => {
       reply(null, msg.args.body)
     })
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       Request.post(
@@ -171,7 +163,7 @@ describe('express', () => {
         { json: { foo: 'bar' } },
         (err, res, body) => {
           if (err) return done(err)
-          expect(body).to.be.equal({ foo: 'bar' })
+          assert.deepEqual(body, { foo: 'bar' })
           done()
         }
       )
@@ -193,7 +185,7 @@ describe('express', () => {
 
     si.add('role:test,cmd:redirect', (msg, reply) => reply())
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       Request.get(
@@ -201,8 +193,8 @@ describe('express', () => {
         { followRedirect: false },
         (err, res) => {
           if (err) return done(err)
-          expect(res.headers.location).to.exist()
-          expect(res.headers.location).to.equal('/')
+          assert(res.headers.location)
+          assert.equal(res.headers.location, '/')
           done()
         }
       )
@@ -221,7 +213,7 @@ describe('express', () => {
 
     si.add('role:test,cmd:boom', (msg, reply) => reply(new Error('aw snap!')))
 
-    si.act('role:web', config, (err) => {
+    si.act('role:web', config, err => {
       if (err) return done(err)
 
       app.use((err, req, res, next) => {
@@ -239,8 +231,8 @@ describe('express', () => {
         (err, res, body) => {
           if (err) return done(err)
           body = JSON.parse(body)
-          expect(res.statusCode).to.equal(400)
-          expect(body).to.be.equal({ message: 'aw snap!' })
+          assert.equal(res.statusCode, 400)
+          assert.deepEqual(body, { message: 'aw snap!' })
           done()
         }
       )
@@ -258,8 +250,9 @@ describe('express', () => {
           }
         }
       }
-      si.act('role:web', config, (err) => {
-        expect(err.details.message).to.equal(
+      si.act('role:web', config, err => {
+        assert.equal(
+          err.details.message,
           'expected valid middleware, got total not valid'
         )
         done()
@@ -281,14 +274,14 @@ describe('express', () => {
         reply(null, { res: 'ping!' })
       })
 
-      si.act('role:web', config, (err) => {
+      si.act('role:web', config, err => {
         if (err) return done(err)
 
         Request('http://127.0.0.1:3000/ping', (err, res, body) => {
           if (err) return done(err)
           body = JSON.parse(body)
-          expect(res.statusCode).to.equal(200)
-          expect(body).to.be.equal({ success: true })
+          assert.equal(res.statusCode, 200)
+          assert.deepEqual(body, { success: true })
           done()
         })
       })
@@ -321,14 +314,14 @@ describe('express', () => {
         this.prior(msg, cb)
       })
 
-      si.act('role:web', config, (err) => {
+      si.act('role:web', config, err => {
         if (err) return done(err)
 
         Request('http://127.0.0.1:3000/ping', (err, res, body) => {
           if (err) return done(err)
           body = JSON.parse(body)
-          expect(res.statusCode).to.equal(200)
-          expect(body).to.be.equal({ success: true })
+          assert.equal(res.statusCode, 200)
+          assert.deepEqual(body, { success: true })
           done()
         })
       })
