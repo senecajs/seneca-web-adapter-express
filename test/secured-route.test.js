@@ -1,8 +1,7 @@
 'use strict'
 
-const Code = require('code')
+const assert = require('assert')
 const Sinon = require('sinon')
-const Lab = require('lab')
 const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('seneca-web')
@@ -12,13 +11,6 @@ const Session = require('express-session')
 const Passport = require('passport')
 const Strategy = require('passport-local').Strategy
 const json = require('body-parser').json
-
-const expect = Code.expect
-const lab = (exports.lab = Lab.script())
-const describe = lab.describe
-const it = lab.it
-const beforeEach = lab.beforeEach
-const afterEach = lab.afterEach
 
 const LoginStub = Sinon.stub()
 const user = { id: 123 }
@@ -85,9 +77,9 @@ describe('secured route', () => {
       'http://127.0.0.1:3000/profile',
       { followRedirect: false },
       (err, res) => {
-        expect(err).to.equal(null)
-        expect(res.headers.location).to.exist()
-        expect(res.headers.location).to.equal('/')
+        assert.equal(err, null)
+        assert(res.headers.location)
+        assert.equal(res.headers.location, '/')
         done()
       }
     )
@@ -99,9 +91,9 @@ describe('secured route', () => {
       'http://127.0.0.1:3000/login',
       { followRedirect: false, json: { username: 'test', password: 'test' } },
       (err, res) => {
-        expect(err).to.equal(null)
-        expect(res.headers.location).to.exist()
-        expect(res.headers.location).to.equal('/')
+        assert.equal(err, null)
+        assert(res.headers.location)
+        assert.equal(res.headers.location, '/')
         done()
       }
     )
@@ -114,17 +106,17 @@ describe('secured route', () => {
       'http://127.0.0.1:3000/login',
       { jar, json: { username: 'test', password: 'test' } },
       (err, res) => {
-        expect(err).to.equal(null)
-        expect(res.headers.location).to.exist()
-        expect(res.headers.location).to.equal('/profile')
+        assert.equal(err, null)
+        assert(res.headers.location)
+        assert.equal(res.headers.location, '/profile')
 
         Request.get(
           'http://127.0.0.1:3000/profile',
           { jar },
           (err, res, body) => {
-            expect(err).to.equal(null)
+            assert.equal(err, null)
             body = JSON.parse(body)
-            expect(body).to.equal(user)
+            assert.deepEqual(body, user)
             done()
           }
         )
