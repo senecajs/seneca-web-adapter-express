@@ -73,14 +73,14 @@ exports.compare = {
   },
   'with test("print"), without req/res': done => {
     Request(
-      `http://localhost:${NON_PRINT_PORT_WITHOUTREQ}/test`,
+      `http://localhost:${PRINT_PORT_WITHOUTREQ}/test`,
       { method: 'GET' },
       () => done()
     )
   },
   'without test("print"), with req/res': done => {
     Request(
-      `http://localhost:${PRINT_PORT_WITHREQ}/test`,
+      `http://localhost:${NON_PRINT_PORT_WITHREQ}/test`,
       { method: 'GET' },
       () => done()
     )
