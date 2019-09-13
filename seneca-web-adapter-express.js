@@ -63,6 +63,14 @@ module.exports = function express(options, context, auth, routes, done) {
 // All routes ultimately get handled by this handler
 // if they have not already be redirected or responded.
 function handleRoute(seneca, options, request, reply, route, next) {
+  if (options.includeRequest == null) {
+    options.includeRequest = true
+  }
+
+  if (options.includeResponse == null) {
+    options.includeResponse = true
+  }
+
   if (options.parseBody) {
     return ReadBody(request, finish)
   }
@@ -77,11 +85,8 @@ function handleRoute(seneca, options, request, reply, route, next) {
     }
 
     // This is what the seneca handler will get
-    // Note! request$ and response$ will be stripped
-    // if the message is sent over transport.
+
     const payload = {
-      request$: request,
-      response$: reply,
       args: {
         body: body,
         route: route,
@@ -89,6 +94,17 @@ function handleRoute(seneca, options, request, reply, route, next) {
         query: request.query,
         user: request.user || null
       }
+    }
+
+    // Note! request$ and response$ will be stripped
+    // if the message is sent over transport.
+
+    if (options.includeRequest) {
+      payload.request$ = request
+    }
+
+    if (options.includeResponse) {
+      payload.response$ = reply
     }
 
     // Call the seneca action specified in the config

@@ -33,13 +33,25 @@ const Express = require('express')
 const seneca = Seneca()
 seneca.use(SenecaWeb, {
   context: Express(),
-  adapter: require('seneca-web-adapter-express')
+  adapter: require('seneca-web-adapter-express'),
+  // defaults --
+  options: {
+    parseBody: true,
+    includeRequest: true,
+    includeResponse: true
+  }
 })
 seneca.ready(() => {
   const app = seneca.export('web/context')()
   app.listen(3000)
 })
 ```
+
+## Additional Options
+
+* `parseBody` attempt to parse request body into `req.body`
+* `includeRequest` include `request$` with payload (req)
+* `includeResponse` include `response$` with payload (res)
 
 ## Contributing
 The [Senecajs org][] encourage open participation. If you feel you can help in any way,
