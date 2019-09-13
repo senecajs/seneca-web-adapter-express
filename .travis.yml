@@ -17,4 +17,5 @@ before_script:
   - npm install $SENECA_VER
 
 after_script:
+  - npm run bench
   - npm run coveralls

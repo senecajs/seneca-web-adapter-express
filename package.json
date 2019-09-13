@@ -30,6 +30,7 @@
   "license": "MIT",
   "main": "seneca-web-adapter-express.js",
   "scripts": {
+    "bench": "node ./test/bench.js",
     "pretest": "eslint .",
     "test": "mocha",
     "test-debug": "node --inspect-brk node_modules/mocha/bin/mocha --no-timeouts",
@@ -51,6 +52,7 @@
     "seneca-web": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
+    "bench": "^0.3.6",
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.4",
     "coveralls": "^3.0.6",
