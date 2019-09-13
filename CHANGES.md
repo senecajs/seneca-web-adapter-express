@@ -1,3 +1,9 @@
+## 1.2.0 2019-09-13
+
+* Add two new options -- `includeRequest` and `includeResponse`
+  These control whether you include `request$` and `response$` with payload
+  Disable for less overhead (this will be the default in next major version)
+
 ## 1.1.2 2018-09-09
 
 * Update dependencies / dev tooling.
