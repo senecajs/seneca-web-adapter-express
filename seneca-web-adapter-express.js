@@ -95,6 +95,13 @@ function handleRoute(seneca, options, request, reply, route, next) {
         user: request.user || null
       }
     }
+    
+    // Since the request$ gets removed, if this messages is sent over transport, the receiver of the message
+    // might need to check headers. Therefore the developer can add "includeHeaders:true" to
+    // his route, so the header gets send away with the message.
+    if (!!route.includeHeaders) {
+     payload.args.headers = request.headers; 
+    }
 
     // Note! request$ and response$ will be stripped
     // if the message is sent over transport.
