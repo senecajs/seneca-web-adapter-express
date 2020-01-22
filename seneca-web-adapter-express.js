@@ -139,10 +139,10 @@ function unsecuredRoute(seneca, options, context, method, middleware, route) {
 // depending on pass or failure. Generally this means you don't
 // need a seneca handler set as the redirects happend instead.
 function authRoute(seneca, options, context, method, route, middleware, auth) {
-  const opts = {
+  const opts = seneca.util.deepextend({
     failureRedirect: route.auth.fail,
     successRedirect: route.auth.pass
-  }
+  }, route.auth.options)
 
   const routeArgs = [route.path]
     .concat([auth.authenticate(route.auth.strategy, opts)])
