@@ -9,3 +9,4 @@ node_modules
 docs/annotated
 docs/coverage
 .nyc_output
+package-lock.json
