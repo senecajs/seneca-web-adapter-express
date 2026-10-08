@@ -139,10 +139,11 @@ npm install
 npm test
 ```
 
-The tests run against the Seneca version in `devDependencies`
-(`^4.0.0-rc5`, the Seneca 4 prerelease). To test against another Seneca,
-install it without saving, for example `npm install --no-save seneca@3`,
-then `npm test`; `npm install` restores the default. `npm run coverage`
+The tests run against the Seneca and Express versions in
+`devDependencies` (`seneca@^4.0.0-rc5`, the Seneca 4 prerelease, and
+`express@^5.1.0`). To test against other versions, install them without
+saving, for example `npm install --no-save seneca@3 express@4`, then
+`npm test`; `npm install` restores the defaults. `npm run coverage`
 writes a coverage report to `coverage/`. The examples run with
 `node docs/examples/<name>.js` and exit on their own.
 

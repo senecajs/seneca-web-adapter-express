@@ -18,11 +18,11 @@
 * Node.js 24 and 22.
 * Tests: mocha 11 (`.mocharc.json` replaces `test/mocha.opts`), eslint 10
   with a flat `eslint.config.js`, requests made with `fetch` instead of
-  `request`, sinon 19, passport 0.7, express-session 1.19. The tests for
+  `request`, sinon 19, passport 0.7, express-session 1.19, and Express 5
+  (the tests pass unchanged on Express 5.2 and 4.22). The tests for
   custom errors and invalid middleware read the error message in a way
   that works on Seneca 3 and 4. New tests for route messages: not fatal,
-  one transaction per request, plugin context kept. Also verified with
-  Express 5.2.
+  one transaction per request, plugin context kept.
 * Documentation reorganized (Diátaxis) under `docs/`, with runnable
   examples in `docs/examples/`; the duplicate `README.MD` was removed.
   `docs` and `CHANGES.md` are included in the published package.

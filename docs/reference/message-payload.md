@@ -2,7 +2,8 @@
 
 The message the adapter sends for each request, and the route object it
 carries. The values below were printed by an action on Seneca 4.0.0-rc5
-with Express 4.22; Seneca 3 sends the same message.
+with Express 4.22 and 5.2 (the same with both); Seneca 3 sends the same
+message.
 
 ## Shape
 

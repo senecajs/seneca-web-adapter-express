@@ -41,11 +41,13 @@ trace in development, and prints the stack to standard error.
 
 The adapter calls only `app[method](path, ...handlers)`, `res.send`,
 `res.redirect` and `next`, which behave the same in Express 4 and 5. The
-test suite passes on both (4.22 and 5.2). Differences that affect
-applications are Express's own: Express 5 uses a stricter path syntax
-(`/:id` is fine, wildcards changed), `req.query` is read only, and
-`express.json()` replaces the `body-parser` package. Express 5 requires
-Node.js 18 or later.
+test suite runs on Express 5 by default and passes unchanged on Express
+4.22. Differences that affect applications are Express's own: Express 5
+has a stricter path syntax (named parameters such as `/:id` work as
+before, wildcards and optional parts are written differently), makes
+`req.query` a read only getter, and requires Node.js 18 or later. Both
+versions include `express.json()` and `express.urlencoded()`, so a
+separate body parser package is not needed.
 
 ## Sessions and passport
 
