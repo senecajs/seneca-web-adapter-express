@@ -4,9 +4,20 @@ const _ = require('lodash')
 const ReadBody = require('./read-body')
 
 // This adapter handles routes for express and can authorise using
-// passport.js. See ./docs/examples/secure-express.js for more info.
+// passport.js. See ./docs/examples/secured-routes.js for more info.
 module.exports = function express(options, context, auth, routes, done) {
-  const seneca = this
+  // The messages for web requests are sent from the root instance, which
+  // has no fixed arguments. Seneca copies the fixed arguments of the
+  // sending instance into every message, and with the default
+  // strict.fixedargs they also replace those of the delegate the action
+  // runs on. The instance seneca-web calls the adapter on has fixed
+  // arguments that must not reach route actions: the plugin$ of
+  // seneca-web, which replaces the plugin$ of the route action so that
+  // this.error(code) no longer finds that plugin's error templates, and,
+  // up to seneca-web 2.2.2, the transaction id of the action that maps
+  // the routes and fatal$: true from plugin loading, which makes any
+  // action error close Seneca and exit the process.
+  const seneca = this.root || this
 
   if (!context) {
     return done(new Error('no context provided'))

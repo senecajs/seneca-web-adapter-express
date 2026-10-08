@@ -1,11 +1,12 @@
 'use strict'
 
 const assert = require('assert')
-const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('seneca-web')
 const Express = require('express')
 const adapter = require('..')
+
+const BASE = 'http://127.0.0.1:3000'
 
 describe('passing req/res', () => {
   let app = null
@@ -16,12 +17,12 @@ describe('passing req/res', () => {
     {
       pin: 'cmd:*',
       map: {
-        test: { get: true }
-      }
-    }
+        test: { get: true },
+      },
+    },
   ]
 
-  beforeEach(done => {
+  beforeEach((done) => {
     app = Express()
     server = app.listen(3000, () => {
       si = Seneca({ log: 'silent' })
@@ -32,77 +33,59 @@ describe('passing req/res', () => {
     })
   })
 
-  afterEach(done => {
-    server.close(done)
+  afterEach((done) => {
+    si.close(() => server.close(done))
   })
 
   describe('default case', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       si.use(Web, { adapter, context: app, routes })
       si.ready(done)
     })
 
-    it('should work properly', done => {
-      Request(
-        'http://127.0.0.1:3000/test',
-        { json: true },
-        (err, _, result) => {
-          if (err) return done(err)
-          assert.equal(result.req, true)
-          assert.equal(result.res, true)
-          done()
-        }
-      )
+    it('should work properly', async () => {
+      const res = await fetch(BASE + '/test')
+      const result = await res.json()
+      assert.equal(result.req, true)
+      assert.equal(result.res, true)
     })
   })
 
   describe('passing true', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       si.use(Web, {
         adapter,
         context: app,
         routes,
-        options: { includeRequest: true, includeResponse: true }
+        options: { includeRequest: true, includeResponse: true },
       })
       si.ready(done)
     })
 
-    it('should work properly', done => {
-      Request(
-        'http://127.0.0.1:3000/test',
-        { json: true },
-        (err, _, result) => {
-          if (err) return done(err)
-          assert.equal(result.req, true)
-          assert.equal(result.res, true)
-          done()
-        }
-      )
+    it('should work properly', async () => {
+      const res = await fetch(BASE + '/test')
+      const result = await res.json()
+      assert.equal(result.req, true)
+      assert.equal(result.res, true)
     })
   })
 
   describe('passing false', () => {
-    beforeEach(done => {
+    beforeEach((done) => {
       si.use(Web, {
         adapter,
         context: app,
         routes,
-        options: { includeRequest: false, includeResponse: false }
+        options: { includeRequest: false, includeResponse: false },
       })
       si.ready(done)
     })
 
-    it('should work properly', done => {
-      Request(
-        'http://127.0.0.1:3000/test',
-        { json: true },
-        (err, _, result) => {
-          if (err) return done(err)
-          assert.equal(result.req, false)
-          assert.equal(result.res, false)
-          done()
-        }
-      )
+    it('should work properly', async () => {
+      const res = await fetch(BASE + '/test')
+      const result = await res.json()
+      assert.equal(result.req, false)
+      assert.equal(result.res, false)
     })
   })
 })

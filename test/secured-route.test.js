@@ -2,7 +2,6 @@
 
 const assert = require('assert')
 const Sinon = require('sinon')
-const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('seneca-web')
 
@@ -10,7 +9,8 @@ const Express = require('express')
 const Session = require('express-session')
 const Passport = require('passport')
 const Strategy = require('passport-local').Strategy
-const json = require('body-parser').json
+
+const BASE = 'http://127.0.0.1:3000'
 
 const LoginStub = Sinon.stub()
 const user = { id: 123 }
@@ -27,10 +27,10 @@ const Routes = [
       profile: { GET: true, secure: { fail: '/' } },
       login: {
         POST: true,
-        auth: { strategy: 'local', pass: '/profile', fail: '/' }
-      }
-    }
-  }
+        auth: { strategy: 'local', pass: '/profile', fail: '/' },
+      },
+    },
+  },
 ]
 
 function AuthPlugin() {
@@ -40,15 +40,33 @@ function AuthPlugin() {
   return { name: 'AuthPlugin' }
 }
 
+// Posts a login form as JSON without following the redirect.
+function login() {
+  return fetch(BASE + '/login', {
+    method: 'POST',
+    redirect: 'manual',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ username: 'test', password: 'test' }),
+  })
+}
+
+// Builds a Cookie header from the Set-Cookie headers of a response.
+function cookiesOf(res) {
+  return res.headers
+    .getSetCookie()
+    .map((cookie) => cookie.split(';')[0])
+    .join('; ')
+}
+
 describe('secured route', () => {
   let si = null
   let server = null
   let app = null
 
-  beforeEach(done => {
+  beforeEach((done) => {
     LoginStub.reset()
     server = Express()
-    server.use(json())
+    server.use(Express.json())
     server.use(
       Session({ secret: 'magically', resave: false, saveUninitialized: false })
     )
@@ -60,67 +78,41 @@ describe('secured route', () => {
       adapter: require('..'),
       context: server,
       routes: Routes,
-      auth: Passport
+      auth: Passport,
     })
     si.ready(() => {
       app = server.listen(3000, done)
     })
   })
 
-  afterEach(done => {
-    app.close(done)
+  afterEach((done) => {
+    si.close(() => app.close(done))
   })
 
-  it('should redirect upon auth failure', done => {
+  it('should redirect upon auth failure', async () => {
     LoginStub.callsArgWith(2, null, false)
-    Request.get(
-      'http://127.0.0.1:3000/profile',
-      { followRedirect: false },
-      (err, res) => {
-        assert.equal(err, null)
-        assert(res.headers.location)
-        assert.equal(res.headers.location, '/')
-        done()
-      }
-    )
+    const res = await fetch(BASE + '/profile', { redirect: 'manual' })
+    assert.equal(res.status, 302)
+    assert.equal(res.headers.get('location'), '/')
   })
 
-  it('should fail and redirect user back to home', done => {
+  it('should fail and redirect user back to home', async () => {
     LoginStub.callsArgWith(2, null, false)
-    Request.post(
-      'http://127.0.0.1:3000/login',
-      { followRedirect: false, json: { username: 'test', password: 'test' } },
-      (err, res) => {
-        assert.equal(err, null)
-        assert(res.headers.location)
-        assert.equal(res.headers.location, '/')
-        done()
-      }
-    )
+    const res = await login()
+    assert.equal(res.status, 302)
+    assert.equal(res.headers.get('location'), '/')
   })
 
-  it('should log user in and redirect properly to profile, return user properly', done => {
+  it('should log user in and redirect properly to profile, return user properly', async () => {
     LoginStub.callsArgWith(2, null, true)
-    const jar = Request.jar()
-    Request.post(
-      'http://127.0.0.1:3000/login',
-      { jar, json: { username: 'test', password: 'test' } },
-      (err, res) => {
-        assert.equal(err, null)
-        assert(res.headers.location)
-        assert.equal(res.headers.location, '/profile')
+    const res = await login()
+    assert.equal(res.status, 302)
+    assert.equal(res.headers.get('location'), '/profile')
 
-        Request.get(
-          'http://127.0.0.1:3000/profile',
-          { jar },
-          (err, res, body) => {
-            assert.equal(err, null)
-            body = JSON.parse(body)
-            assert.deepEqual(body, user)
-            done()
-          }
-        )
-      }
-    )
+    const profile = await fetch(BASE + '/profile', {
+      headers: { cookie: cookiesOf(res) },
+    })
+    assert.equal(profile.status, 200)
+    assert.deepEqual(await profile.json(), user)
   })
 })
