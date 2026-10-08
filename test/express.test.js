@@ -1,11 +1,19 @@
 'use strict'
 
-const Request = require('request')
 const Seneca = require('seneca')
 const Web = require('seneca-web')
 const Express = require('express')
-const BodyParser = require('body-parser')
 const assert = require('assert')
+
+const BASE = 'http://127.0.0.1:3000'
+
+// Promise wrapper around seneca.act, so that the tests read the same way
+// on Seneca 3 (no built in promises) and Seneca 4.
+function act(seneca, pattern, msg) {
+  return new Promise((resolve, reject) => {
+    seneca.act(pattern, msg, (err, out) => (err ? reject(err) : resolve(out)))
+  })
+}
 
 describe('express', () => {
   let si = null
@@ -13,17 +21,17 @@ describe('express', () => {
   let app = null
 
   const middleware = {
-    head: function(req, res, next) {
-      res.type = 'application/json'
-      res.status = 200
+    head: function (req, res, next) {
+      res.type('application/json')
+      res.status(200)
       next()
     },
-    body: function(req, res) {
+    body: function (req, res) {
       res.json({ success: true })
-    }
+    },
   }
 
-  beforeEach(done => {
+  beforeEach((done) => {
     app = Express()
     server = app.listen(3000, () => {
       si = Seneca({ log: 'silent' })
@@ -32,47 +40,40 @@ describe('express', () => {
     })
   })
 
-  afterEach(done => {
-    server.close(done)
+  afterEach((done) => {
+    si.close(() => server.close(done))
   })
 
-  it('by default routes autoreply', done => {
-    var config = {
+  it('by default routes autoreply', async () => {
+    const config = {
       routes: {
         pin: 'role:test,cmd:*',
         map: {
-          ping: true
-        }
-      }
+          ping: true,
+        },
+      },
     }
 
     si.add('role:test,cmd:ping', (msg, reply) => {
       reply(null, { res: 'pong!' })
     })
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      Request('http://127.0.0.1:3000/ping', (err, res, body) => {
-        if (err) return done(err)
-
-        body = JSON.parse(body)
-
-        assert.deepEqual(body, { res: 'pong!' })
-        done()
-      })
-    })
+    const res = await fetch(BASE + '/ping')
+    assert.equal(res.status, 200)
+    assert.deepEqual(await res.json(), { res: 'pong!' })
   })
 
-  it('multiple routes supported', done => {
-    var config = {
+  it('multiple routes supported', async () => {
+    const config = {
       routes: {
         pin: 'role:test,cmd:*',
         map: {
           one: true,
-          two: true
-        }
-      }
+          two: true,
+        },
+      },
     }
 
     si.add('role:test,cmd:one', (msg, reply) => {
@@ -83,248 +84,206 @@ describe('express', () => {
       reply(null, { res: 'ping!' })
     })
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      Request('http://127.0.0.1:3000/one', (err, res, body) => {
-        if (err) return done(err)
+    const one = await fetch(BASE + '/one')
+    assert.deepEqual(await one.json(), { res: 'pong!' })
 
-        body = JSON.parse(body)
-        assert.deepEqual(body, { res: 'pong!' })
-
-        Request('http://127.0.0.1:3000/two', (err, res, body) => {
-          if (err) return done(err)
-
-          body = JSON.parse(body)
-          assert.deepEqual(body, { res: 'ping!' })
-          done()
-        })
-      })
-    })
+    const two = await fetch(BASE + '/two')
+    assert.deepEqual(await two.json(), { res: 'ping!' })
   })
 
-  it('post without body parser defined', done => {
-    var config = {
+  it('post without body parser defined', async () => {
+    const config = {
       routes: {
         pin: 'role:test,cmd:*',
         map: {
           echo: {
-            POST: true
-          }
-        }
-      }
+            POST: true,
+          },
+        },
+      },
     }
 
     si.add('role:test,cmd:echo', (msg, reply) => {
       reply(null, { value: msg.args.body })
     })
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      Request.post(
-        'http://127.0.0.1:3000/echo',
-        { json: { foo: 'bar' } },
-        (err, res, body) => {
-          if (err) return done(err)
-          assert.deepEqual(body.value, '{"foo":"bar"}')
-          done()
-        }
-      )
+    const res = await fetch(BASE + '/echo', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ foo: 'bar' }),
     })
+    const body = await res.json()
+
+    // parseBody (the default) delivers the raw body as a string.
+    assert.deepEqual(body.value, '{"foo":"bar"}')
   })
 
-  it('post with body parser defined', done => {
-    var config = {
+  it('post with body parser defined', async () => {
+    const config = {
       options: {
-        parseBody: false
+        parseBody: false,
       },
       routes: {
         pin: 'role:test,cmd:*',
         map: {
           echo: {
-            POST: true
-          }
-        }
-      }
+            POST: true,
+          },
+        },
+      },
     }
 
-    app.use(BodyParser.json())
+    app.use(Express.json())
 
     si.add('role:test,cmd:echo', (msg, reply) => {
       reply(null, msg.args.body)
     })
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      Request.post(
-        'http://127.0.0.1:3000/echo',
-        { json: { foo: 'bar' } },
-        (err, res, body) => {
-          if (err) return done(err)
-          assert.deepEqual(body, { foo: 'bar' })
-          done()
-        }
-      )
+    const res = await fetch(BASE + '/echo', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ foo: 'bar' }),
     })
+
+    assert.deepEqual(await res.json(), { foo: 'bar' })
   })
 
-  it('should redirect properly', done => {
-    var config = {
+  it('should redirect properly', async () => {
+    const config = {
       routes: {
         pin: 'role:test,cmd:*',
         map: {
           redirect: {
             GET: true,
-            redirect: '/'
-          }
-        }
-      }
+            redirect: '/',
+          },
+        },
+      },
     }
 
     si.add('role:test,cmd:redirect', (msg, reply) => reply())
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      Request.get(
-        'http://127.0.0.1:3000/redirect',
-        { followRedirect: false },
-        (err, res) => {
-          if (err) return done(err)
-          assert(res.headers.location)
-          assert.equal(res.headers.location, '/')
-          done()
-        }
-      )
-    })
+    const res = await fetch(BASE + '/redirect', { redirect: 'manual' })
+    assert.equal(res.status, 302)
+    assert.equal(res.headers.get('location'), '/')
   })
 
-  it('should handle custom errors properly', done => {
-    var config = {
+  it('should handle custom errors properly', async () => {
+    const config = {
       routes: {
         pin: 'role:test,cmd:*',
         map: {
-          boom: true
-        }
-      }
+          boom: true,
+        },
+      },
     }
 
     si.add('role:test,cmd:boom', (msg, reply) => reply(new Error('aw snap!')))
 
-    si.act('role:web', config, err => {
-      if (err) return done(err)
+    await act(si, 'role:web', config)
 
-      app.use((err, req, res, next) => {
-        if (res.headersSend) {
-          return next(err)
-        }
-        res
-          .status(400)
-          .send({ message: err.orig.message.replace('gate-executor: ', '') })
-      })
-
-      Request.get(
-        'http://127.0.0.1:3000/boom',
-        { followRedirect: false },
-        (err, res, body) => {
-          if (err) return done(err)
-          body = JSON.parse(body)
-          assert.equal(res.statusCode, 400)
-          assert.deepEqual(body, { message: 'aw snap!' })
-          done()
-        }
-      )
+    // The adapter hands the action error to Express via next(err).
+    // Seneca 3 wraps action errors and keeps the original in err.orig;
+    // Seneca 4 passes the original error through unchanged.
+    app.use((err, req, res, next) => {
+      if (res.headersSent) {
+        return next(err)
+      }
+      res.status(400).send({ message: (err.orig || err).message })
     })
+
+    const res = await fetch(BASE + '/boom', { redirect: 'manual' })
+    assert.equal(res.status, 400)
+    assert.deepEqual(await res.json(), { message: 'aw snap!' })
   })
 
   describe('middleware', () => {
-    it('blows up on invalid middleware input', done => {
-      var config = {
+    it('blows up on invalid middleware input', async () => {
+      const config = {
         routes: {
           pin: 'role:test,cmd:*',
           middleware: ['total not valid'],
           map: {
-            ping: true
-          }
-        }
+            ping: true,
+          },
+        },
       }
-      si.act('role:web', config, err => {
-        assert.equal(
-          err.details.message,
-          'expected valid middleware, got total not valid'
-        )
-        done()
-      })
+
+      const err = await act(si, 'role:web', config).then(
+        () => null,
+        (err) => err
+      )
+
+      assert.ok(err, 'expected the route mapping to fail')
+      assert.equal(
+        (err.orig || err).message,
+        'expected valid middleware, got total not valid'
+      )
     })
 
-    it('should call middleware routes properly - passing as strings', done => {
-      var config = {
+    it('should call middleware routes properly - passing as strings', async () => {
+      const config = {
         routes: {
           pin: 'role:test,cmd:*',
           middleware: ['head', 'body'],
           map: {
-            ping: true
-          }
-        }
+            ping: true,
+          },
+        },
       }
 
       si.add('role:test,cmd:ping', (msg, reply) => {
         reply(null, { res: 'ping!' })
       })
 
-      si.act('role:web', config, err => {
-        if (err) return done(err)
+      await act(si, 'role:web', config)
 
-        Request('http://127.0.0.1:3000/ping', (err, res, body) => {
-          if (err) return done(err)
-          body = JSON.parse(body)
-          assert.equal(res.statusCode, 200)
-          assert.deepEqual(body, { success: true })
-          done()
-        })
-      })
+      const res = await fetch(BASE + '/ping')
+      assert.equal(res.status, 200)
+      assert.deepEqual(await res.json(), { success: true })
     })
-    it('should call middleware routes properly - passing as functions', done => {
-      var config = {
+
+    it('should call middleware routes properly - passing as functions', async () => {
+      const config = {
         routes: {
           pin: 'role:test,cmd:*',
           map: {
-            ping: true
-          }
-        }
+            ping: true,
+          },
+        },
       }
 
       si.add('role:test,cmd:ping', (msg, reply) => {
         reply(null, { res: 'ping!' })
       })
 
-      si.add('role:web,routes:*', function(msg, cb) {
+      si.add('role:web,routes:*', function (msg, cb) {
         msg.routes.middleware = [
-          function(req, res, next) {
-            res.type = 'application/json'
-            res.status = 200
+          function (req, res, next) {
+            res.type('application/json')
+            res.status(200)
             next()
           },
-          function(req, res) {
+          function (req, res) {
             res.json({ success: true })
-          }
+          },
         ]
         this.prior(msg, cb)
       })
 
-      si.act('role:web', config, err => {
-        if (err) return done(err)
+      await act(si, 'role:web', config)
 
-        Request('http://127.0.0.1:3000/ping', (err, res, body) => {
-          if (err) return done(err)
-          body = JSON.parse(body)
-          assert.equal(res.statusCode, 200)
-          assert.deepEqual(body, { success: true })
-          done()
-        })
-      })
+      const res = await fetch(BASE + '/ping')
+      assert.equal(res.status, 200)
+      assert.deepEqual(await res.json(), { success: true })
     })
   })
 })

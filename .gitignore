@@ -6,7 +6,5 @@
 *.log
 
 node_modules
-docs/annotated
-docs/coverage
+coverage
 .nyc_output
-package-lock.json

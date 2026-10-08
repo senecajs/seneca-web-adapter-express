@@ -4,7 +4,6 @@ const express = require('express')
 const Seneca = require('seneca')
 const SenecaWeb = require('seneca-web')
 const adapter = require('..')
-const Request = require('request')
 
 const PRINT_PORT_WITHREQ = 44313
 const PRINT_PORT_WITHOUTREQ = 44314
@@ -23,16 +22,16 @@ const setup = async (print, reqres, port) => {
     adapter,
     options: {
       includeRequest: reqres,
-      includeResponse: reqres
+      includeResponse: reqres,
     },
     routes: [
       {
         pin: 'cmd:*',
         map: {
-          test: { get: true }
-        }
-      }
-    ]
+          test: { get: true },
+        },
+      },
+    ],
   })
 
   instance.add('cmd:test', (_, done) =>
@@ -40,13 +39,13 @@ const setup = async (print, reqres, port) => {
   )
 
   await new Promise((resolve, reject) =>
-    instance.ready(err => (err ? reject(err) : resolve()))
+    instance.ready((err) => (err ? reject(err) : resolve()))
   )
 
   const app = instance.export('web/context')()
 
   await new Promise((resolve, reject) =>
-    servers.push(app.listen(port, err => (err ? reject(err) : resolve())))
+    servers.push(app.listen(port, (err) => (err ? reject(err) : resolve())))
   )
 
   instances.push(instance)
@@ -58,48 +57,35 @@ const setup = async (print, reqres, port) => {
   await setup(false, true, NON_PRINT_PORT_WITHREQ)
   await setup(false, false, NON_PRINT_PORT_WITHOUTREQ)
   runMain()
-})().catch(err => {
+})().catch((err) => {
   console.error(err)
   process.exit(1)
 })
 
+const get = (port, done) =>
+  fetch(`http://127.0.0.1:${port}/test`)
+    .then((res) => res.text())
+    .then(
+      () => done(),
+      () => done()
+    )
+
 exports.compare = {
-  'with test("print") with req/res': done => {
-    Request(
-      `http://localhost:${PRINT_PORT_WITHREQ}/test`,
-      { method: 'GET' },
-      () => done()
-    )
-  },
-  'with test("print"), without req/res': done => {
-    Request(
-      `http://localhost:${PRINT_PORT_WITHOUTREQ}/test`,
-      { method: 'GET' },
-      () => done()
-    )
-  },
-  'without test("print"), with req/res': done => {
-    Request(
-      `http://localhost:${NON_PRINT_PORT_WITHREQ}/test`,
-      { method: 'GET' },
-      () => done()
-    )
-  },
-  'without test("print"), without req/res': done => {
-    Request(
-      `http://localhost:${NON_PRINT_PORT_WITHOUTREQ}/test`,
-      { method: 'GET' },
-      () => done()
-    )
-  }
+  'with test("print") with req/res': (done) => get(PRINT_PORT_WITHREQ, done),
+  'with test("print"), without req/res': (done) =>
+    get(PRINT_PORT_WITHOUTREQ, done),
+  'without test("print"), with req/res': (done) =>
+    get(NON_PRINT_PORT_WITHREQ, done),
+  'without test("print"), without req/res': (done) =>
+    get(NON_PRINT_PORT_WITHOUTREQ, done),
 }
 
-exports.done = async data => {
+exports.done = async (data) => {
   await Promise.all(
-    servers.map(server => new Promise(resolve => server.close(resolve)))
+    servers.map((server) => new Promise((resolve) => server.close(resolve)))
   )
   await Promise.all(
-    instances.map(instance => new Promise(resolve => instance.close(resolve)))
+    instances.map((instance) => new Promise((resolve) => instance.close(resolve)))
   )
   show(data)
 }
