@@ -1,9 +1,9 @@
 # Message payload
 
 The message the adapter sends for each request, and the route object it
-carries. The values below were printed by an action on Seneca 4.0.0-rc5
-with Express 4.22 and 5.2 (the same with both); Seneca 3 sends the same
-message.
+carries. The values below were printed by an action on Seneca 4.0.0
+with `@seneca/web` 3.0.0 and Express 5.3; Express 4.22 gave the same
+message on a Seneca 4 prerelease, and Seneca 3 sends the same message.
 
 ## Shape
 
