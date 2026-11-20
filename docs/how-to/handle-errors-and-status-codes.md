@@ -1,7 +1,7 @@
 # Handle errors and status codes
 
 How to turn action failures into HTTP responses, choose status codes,
-and write error handlers that work on Seneca 3 and Seneca 4. The complete
+and write error handlers for Seneca 4. The complete
 program is [docs/examples/custom-errors.js](../examples/custom-errors.js);
 the rules are listed in [Response handling](../reference/response-handling.md).
 
@@ -47,12 +47,11 @@ seneca.ready(function (err) {
     if (res.headersSent) {
       return next(err)
     }
-    const cause = err.orig || err
     const status =
       err.status ||
       err.statusCode ||
-      ('missing_item' === cause.code ? 400 : 500)
-    res.status(status).json({ error: cause.message, code: cause.code })
+      ('missing_item' === err.code ? 400 : 500)
+    res.status(status).json({ error: err.message, code: err.code })
   })
 
   app.listen(3000)
@@ -72,7 +71,9 @@ seneca.use(SenecaWeb, { adapter: Adapter, context: router, routes })
 
 ## 3. Know what the handler receives
 
-The error object differs between Seneca versions:
+The handler receives the error the action replied or threw. Seneca 3
+wrapped it; the table shows the difference for handlers written for
+Seneca 3:
 
 | | Seneca 4 | Seneca 3 (default `legacy.error: true`) |
 | --- | --- | --- |
@@ -88,8 +89,7 @@ Seneca errors and are not wrapped on either version: `err.code` and
 `err.details` are yours, and the message is built from the plugin's
 `errors` template (`seneca: An order needs an item.` in the example).
 
-The portable form is `(err.orig || err)`: read the message and code from
-it, and the status from `err`. Running the example (Seneca 4):
+Read the message, code and status from `err`. Running the example:
 
 ```
 $ node docs/examples/custom-errors.js
@@ -102,9 +102,6 @@ GET /shop/crash -> 500 {"error":"database down"}
 GET /shop/price/pear -> 200 {"item":"pear","price":2}
 closed
 ```
-
-On Seneca 3 the same program prints the same lines; only the stack
-traces and log entries differ.
 
 ## 4. Status codes for successful replies
 
@@ -137,7 +134,7 @@ the message, which carries the Express request and response objects when
 long. Turn the two options off for actions that do not need the objects,
 or configure the logger to drop `act/ERR` entries for web routes.
 
-## 7. Before version 1.3.0
+## 7. Before version 2.0.0
 
 With seneca-web 2.2.2 and earlier, versions of this adapter up to 1.2.1
 sent the messages for routes given in the plugin options with

@@ -88,9 +88,9 @@ A name that is not a key of the `middleware` object makes the route
 mapping fail with the error `expected valid middleware, got <name>`.
 When the routes come from the plugin options this is a plugin
 initialization failure, which Seneca treats as fatal; when they come from
-a `role:web` message, the error is given to the act callback. On Seneca
-4 it is the error as thrown (`err.message`); on Seneca 3 it is wrapped,
-with the message in `err.orig.message` and `err.details.message`.
+a `role:web` message, the error is given to the act callback as thrown
+(`err.message`). Seneca 3 wrapped it, with the message in
+`err.orig.message` and `err.details.message`.
 
 ## Secured routes
 

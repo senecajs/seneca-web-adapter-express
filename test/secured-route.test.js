@@ -3,7 +3,7 @@
 const assert = require('assert')
 const Sinon = require('sinon')
 const Seneca = require('seneca')
-const Web = require('seneca-web')
+const Web = require('@seneca/web')
 
 const Express = require('express')
 const Session = require('express-session')

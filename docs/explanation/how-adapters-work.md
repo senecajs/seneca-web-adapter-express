@@ -68,7 +68,7 @@ does as fatal (`fatal$: true`), so that a broken plugin stops the process
 instead of running half configured. Actions run on delegates too, which
 add the transaction id of the message being handled (`tx$`). Fixed
 arguments are copied into every message sent from a delegate, and with
-Seneca's default `strict.fixedargs` the sender's fixed arguments override
+Seneca's default `strict.fixedmsg` the sender's fixed arguments override
 those of the message and those of the delegate the receiving action runs
 on. They cannot be removed by creating another delegate or by setting
 `fatal$: false` in the message.
@@ -84,9 +84,7 @@ that instance, with three effects on route actions:
   every message was fatal. An error replied by a route action made
   Seneca log a fatal error, close the instance and call its exit
   function, even though the Express error handler had already answered
-  the request. On Seneca 3.38 and 4.0.0 the process exited; on
-  4.0.0-rc5, whose default exit function only prints `EXIT`, the next
-  request failed with `seneca: closed` and crashed the process.
+  the request, and the process exited.
 * All requests shared the transaction id of the mapping action.
 * Actions ran with seneca-web's `plugin$` instead of their own, so
   `this.error(code)` could not find the plugin's error templates.
@@ -94,13 +92,13 @@ that instance, with three effects on route actions:
 Tests that create a fresh instance for every test, map routes by
 message, or never trigger an action error did not notice.
 
-Since 1.3.0 the adapter sends from `this.root`. The root instance has no
+Since 2.0.0 the adapter sends from `this.root`. The root instance has no
 fixed arguments, so route messages are ordinary messages, the same as
-those an application sends from its top level instance. A delegate of
-the root that carries a `plugin$`, which a seneca-web change in
-development after 2.2.2 passes to adapters, would still have the third
-effect; that is why the adapter does not use the instance it is called
-on even then.
+those an application sends from its top level instance. `@seneca/web`
+3.0.0 calls adapters with a delegate of the root instance without fixed
+arguments. A delegate that carried a `plugin$` would still have the
+third effect, so the adapter does not rely on the instance it is called
+on.
 
 ## Limits of the design
 

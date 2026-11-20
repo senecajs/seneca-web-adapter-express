@@ -2,7 +2,7 @@
 
 const assert = require('assert')
 const Seneca = require('seneca')
-const Web = require('seneca-web')
+const Web = require('@seneca/web')
 const Express = require('express')
 const adapter = require('..')
 

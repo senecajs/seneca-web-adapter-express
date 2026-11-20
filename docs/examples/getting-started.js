@@ -11,7 +11,7 @@
 // use: const Adapter = require('@seneca/web-adapter-express')
 
 const Seneca = require('seneca')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 const Express = require('express')
 const Adapter = require('../..')
 

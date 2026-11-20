@@ -1,6 +1,5 @@
 // Action errors and HTTP status codes: errors replied or thrown by actions
-// reach the Express error handler, which chooses the status code. Works the
-// same way on Seneca 3 and Seneca 4.
+// reach the Express error handler, which chooses the status code.
 //
 // Run with: node docs/examples/custom-errors.js
 //
@@ -8,7 +7,7 @@
 // use: const Adapter = require('@seneca/web-adapter-express')
 
 const Seneca = require('seneca')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 const Express = require('express')
 const Adapter = require('../..')
 
@@ -76,20 +75,18 @@ seneca.ready(function (err) {
   // The routes exist once Seneca is ready, so an Express error handler must
   // be added here: Express only runs error handlers added after the routes.
   //
-  // Seneca 3 wraps action errors and keeps the original in err.orig, copying
-  // the original's own properties (such as status) onto the wrapper. Seneca
-  // 4 passes the original error through. Coded errors made with this.error
-  // are never wrapped.
+  // Seneca 4 passes the action's error through unchanged, with its own
+  // properties (such as status). Coded errors made with this.error carry
+  // their code and the plugin's message template.
   app.use((err, req, res, next) => {
     if (res.headersSent) {
       return next(err)
     }
-    const cause = err.orig || err
     const status =
       err.status ||
       err.statusCode ||
-      ('missing_item' === cause.code ? 400 : 500)
-    res.status(status).json({ error: cause.message, code: cause.code })
+      ('missing_item' === err.code ? 400 : 500)
+    res.status(status).json({ error: err.message, code: err.code })
   })
 
   const server = app.listen(PORT, () => {

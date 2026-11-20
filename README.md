@@ -4,13 +4,13 @@
 # @seneca/web-adapter-express
 
 The [Express](https://expressjs.com) adapter for
-[seneca-web](https://github.com/senecajs/seneca-web): it registers the
+[@seneca/web](https://github.com/senecajs/seneca-web): it registers the
 routes of a seneca-web route map on an Express app or router, turns each
 request into a Seneca message, and sends the action's reply back as the
 response, with optional authentication through
-[passport](https://www.passportjs.org/). Works with Seneca 3 and Seneca 4
-(prerelease `4.0.0-rc5` and later), seneca-web 2.x and Express 4 and 5;
-tested on Node.js 24 and 22.
+[passport](https://www.passportjs.org/). Version 2 works with Seneca 4,
+`@seneca/web` 3 and Express 4 and 5, on Node.js 24 and later. Seneca 3
+users stay on `seneca-web-adapter-express@1`.
 
 [![npm version][npm-badge]][npm-url]
 [![build][build-badge]][build-url]
@@ -21,19 +21,19 @@ tested on Node.js 24 and 22.
 ## Install
 
 ```sh
-npm install @seneca/web-adapter-express seneca-web express seneca
+npm install seneca@^4 @seneca/web @seneca/web-adapter-express express
 ```
 
 Versions up to 1.2.1 were published as `seneca-web-adapter-express`;
-from the next version (1.3.0) the package is
-`@seneca/web-adapter-express`. `seneca` and `seneca-web` are peer
+from 2.0.0 the package is `@seneca/web-adapter-express`. `seneca` and
+`@seneca/web` (published as `seneca-web` up to 2.2.2) are peer
 dependencies.
 
 ## Quick Example
 
 ```js
 const Seneca = require('seneca')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 const Express = require('express')
 
 const app = Express()
@@ -132,7 +132,7 @@ The [Senecajs org][] encourages open participation. If you feel you can
 help in any way, be it with documentation, examples, extra testing, or
 new features please get in touch.
 
-To run the tests (ESLint, then Mocha) on Node.js 24 or 22:
+To run the tests (ESLint, then Mocha) on Node.js 24 or later:
 
 ```sh
 npm install
@@ -140,10 +140,10 @@ npm test
 ```
 
 The tests run against the Seneca and Express versions in
-`devDependencies` (`seneca@^4.0.0-rc5`, the Seneca 4 prerelease, and
-`express@^5.1.0`). To test against other versions, install them without
-saving, for example `npm install --no-save seneca@3 express@4`, then
-`npm test`; `npm install` restores the defaults. `npm run coverage`
+`devDependencies` (`seneca@^4.0.0` and `express@^5.1.0`). To test
+against Express 4, install it without saving,
+`npm install --no-save express@4`, then `npm test`; `npm install`
+restores the defaults. `npm run coverage`
 writes a coverage report to `coverage/`. The examples run with
 `node docs/examples/<name>.js` and exit on their own.
 
@@ -157,17 +157,17 @@ files needs a GitHub token with the `workflow` scope; apply it with
 The adapter was created in 2016 (version 1.0.0) from the Express support
 in seneca-web, when seneca-web moved framework code into separate
 adapter packages. Middleware support came in 1.1.0 and the
-`includeRequest` and `includeResponse` options in 1.2.0. Version 1.3.0
+`includeRequest` and `includeResponse` options in 1.2.0. Version 2.0.0
 adds Seneca 4 support and sends route messages from the root instance,
 so that they no longer inherit `fatal$` from plugin loading or
 seneca-web's `plugin$`. It was published as `seneca-web-adapter-express`
-up to 1.2.1, and is published as `@seneca/web-adapter-express` from the
-next version. The change log is in [CHANGES.md](CHANGES.md).
+up to 1.2.1, and is published as `@seneca/web-adapter-express` from
+2.0.0. The change log is in [CHANGES.md](CHANGES.md).
 
-| Adapter | Seneca | seneca-web | Express | Node.js |
-| ------- | ------ | ---------- | ------- | ------- |
-| 1.3.x | 3.x and 4.x (from 4.0.0-rc5) | 2.x | 4 and 5 | 22 and later; tested on 24 and 22 |
-| 1.2.x | 2.x and 3.x | 1.x and 2.x | 4 | 8 to 12 |
+| Adapter | Seneca | Plugin | Express | Node.js |
+| ------- | ------ | ------ | ------- | ------- |
+| `@seneca/web-adapter-express` 2.x | 4.x | `@seneca/web` 3.x | 4 and 5 | 24 and later |
+| `seneca-web-adapter-express` 1.2.x | 2.x and 3.x | `seneca-web` 1.x and 2.x | 4 | 8 to 12 |
 
 Licensed under [MIT][].
 

@@ -1,7 +1,7 @@
 'use strict'
 
 const Seneca = require('seneca')
-const Web = require('seneca-web')
+const Web = require('@seneca/web')
 const Express = require('express')
 const assert = require('assert')
 
@@ -191,13 +191,12 @@ describe('express', () => {
     await act(si, 'role:web', config)
 
     // The adapter hands the action error to Express via next(err).
-    // Seneca 3 wraps action errors and keeps the original in err.orig;
-    // Seneca 4 passes the original error through unchanged.
+    // Seneca 4 passes the action's error through unchanged.
     app.use((err, req, res, next) => {
       if (res.headersSent) {
         return next(err)
       }
-      res.status(400).send({ message: (err.orig || err).message })
+      res.status(400).send({ message: err.message })
     })
 
     const res = await fetch(BASE + '/boom', { redirect: 'manual' })
@@ -224,7 +223,7 @@ describe('express', () => {
 
       assert.ok(err, 'expected the route mapping to fail')
       assert.equal(
-        (err.orig || err).message,
+        err.message,
         'expected valid middleware, got total not valid'
       )
     })

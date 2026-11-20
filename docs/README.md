@@ -21,7 +21,7 @@ The programs from the tutorial and the guides are in [examples](examples/).
 | [Parse request bodies](how-to/parse-request-bodies.md) | Express body parsers with `parseBody: false`, the raw body with `parseBody: true`, the hang when both are used. |
 | [Add middleware](how-to/add-middleware.md) | Named and inline middleware for route sets and routes, order, unknown names. |
 | [Secure routes with passport](how-to/secure-routes-with-passport.md) | Login with an `auth` route, `secure` routes, logout with `redirect`, the session cookie. |
-| [Handle errors and status codes](how-to/handle-errors-and-status-codes.md) | Error handlers after the routes, `err.status`, Seneca 3 and 4 error objects, status codes on success, logging. |
+| [Handle errors and status codes](how-to/handle-errors-and-status-codes.md) | Error handlers after the routes, `err.status`, the Seneca 4 error object, status codes on success, logging. |
 | [Map routes at runtime](how-to/map-routes-at-runtime.md) | `role:web` messages, `web/mapRoutes`, `role:web,set:server`, option replacement, Express ordering. |
 | [Migrate from Seneca 3](how-to/migrate-from-seneca-3.md) | Packages, error handlers, tests, `ready`, transports, legacy options. |
 

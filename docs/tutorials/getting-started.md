@@ -8,16 +8,19 @@ The finished program is [docs/examples/getting-started.js](../examples/getting-s
 
 ## 1. Install
 
-You need Node.js 22 or later (24 recommended). In a new directory:
+You need Node.js 24 or later. In a new directory:
 
 ```sh
 npm init -y
-npm install seneca seneca-web express @seneca/web-adapter-express
+npm install seneca@^4 @seneca/web express @seneca/web-adapter-express
 ```
 
-The adapter works with Seneca 3 and Seneca 4, and with Express 4 and 5.
-Versions of the adapter up to 1.2.1 were published as
-`seneca-web-adapter-express`.
+The adapter works with Seneca 4 and with Express 4 and 5. Name the
+Seneca version: until Seneca 4 is the default on npm, a bare
+`npm install seneca` installs Seneca 3, which this version does not
+support. Versions of the adapter up to 1.2.1 were published as
+`seneca-web-adapter-express`, and versions of `@seneca/web` up to 2.2.2
+as `seneca-web`.
 
 ## 2. The service
 
@@ -25,7 +28,7 @@ Create `notes.js` and start with a plugin that keeps notes in memory:
 
 ```js
 const Seneca = require('seneca')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 const Express = require('express')
 const Adapter = require('@seneca/web-adapter-express')
 
@@ -194,7 +197,7 @@ closed
 If an action replies with an `Error` instead, the adapter passes it to
 Express with `next(err)`, so your Express error handlers decide the
 response. [Handle errors and status codes](../how-to/handle-errors-and-status-codes.md)
-shows how, including the differences between Seneca 3 and Seneca 4.
+shows how, including what changed from Seneca 3.
 
 ## Next steps
 

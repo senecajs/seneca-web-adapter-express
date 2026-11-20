@@ -2,7 +2,7 @@
 
 const assert = require('assert')
 const Seneca = require('seneca')
-const Web = require('seneca-web')
+const Web = require('@seneca/web')
 const Express = require('express')
 const adapter = require('..')
 
@@ -74,7 +74,7 @@ describe('route messages', () => {
         if (res.headersSent) {
           return next(err)
         }
-        res.status(500).send({ message: (err.orig || err).message })
+        res.status(500).send({ message: err.message })
       })
       server = app.listen(3000, done)
     })

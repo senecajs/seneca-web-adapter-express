@@ -69,16 +69,17 @@ The handler, on each request:
 The adapter sends the messages for web requests from the root instance,
 `this.root`, whatever instance seneca-web calls it on. Seneca copies the
 fixed arguments of the sending instance into every message, and with
-the default `strict.fixedargs` they also replace those of the delegate
-the receiving action runs on. The instances seneca-web passes carry
-fixed arguments that route actions must not receive:
+the default `strict.fixedmsg` they also replace those of the delegate
+the receiving action runs on. The instances `seneca-web` 2.2.2 and
+earlier passes carry fixed arguments that route actions must not
+receive:
 
 | Called from | Fixed arguments of the instance |
 | ----------- | ------------------------------- |
 | seneca-web 2.2.2 and earlier, routes in the plugin options (`init:web`) | `plugin$`, `fatal$: true`, `tx$` of the initialization |
 | seneca-web 2.2.2 and earlier, a `role:web` message | `plugin$`, `tx$` of that message |
 | seneca-web 2.2.2 and earlier, the `web/mapRoutes` export | `plugin$`, `fatal$: true` |
-| A root delegate created with a `plugin$`, as in the seneca-web change in development after 2.2.2 | `plugin$` |
+| `@seneca/web` 3.0.0 | none: a delegate of the root instance |
 
 What each would do to a route action:
 
@@ -110,9 +111,9 @@ Where you see the error depends on how the routes were mapped:
 
 * Routes in the plugin options: the `init:web` action fails, which is a
   fatal plugin initialization failure.
-* A `role:web` message: the act callback receives the error. On Seneca 4
-  it is the error itself (`err.message`); on Seneca 3 it is wrapped, with
-  the message in `err.orig.message` and `err.details.message`.
+* A `role:web` message: the act callback receives the error itself
+  (`err.message`). Seneca 3 wrapped it, with the message in
+  `err.orig.message` and `err.details.message`.
 * The `web/mapRoutes` export: a thrown error is thrown from the call; an
   error given to `done` reaches the callback.
 

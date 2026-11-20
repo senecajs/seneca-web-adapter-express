@@ -1,8 +1,8 @@
 # Response handling
 
 What the adapter sends back for each outcome of the action. Every row
-was checked with Express 4.22 and 5.2 on Seneca 4.0.0-rc5; the test
-suite covers the main rows on Seneca 3.38, 4.0.0-rc5 and 4.0.0.
+was checked with Express 4.22 and 5.2 on a Seneca 4 prerelease; the
+test suite checks the main rows on Seneca 4.0.0 with Express 5.
 
 ## After the action replies
 
