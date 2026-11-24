@@ -2,7 +2,7 @@ const { runMain, show } = require('bench')
 
 const express = require('express')
 const Seneca = require('seneca')
-const SenecaWeb = require('seneca-web')
+const SenecaWeb = require('@seneca/web')
 const adapter = require('..')
 
 const PRINT_PORT_WITHREQ = 44313

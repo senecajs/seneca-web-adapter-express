@@ -9,7 +9,7 @@ module.exports = function express(options, context, auth, routes, done) {
   // The messages for web requests are sent from the root instance, which
   // has no fixed arguments. Seneca copies the fixed arguments of the
   // sending instance into every message, and with the default
-  // strict.fixedargs they also replace those of the delegate the action
+  // strict.fixedmsg they also replace those of the delegate the action
   // runs on. The instance seneca-web calls the adapter on has fixed
   // arguments that must not reach route actions: the plugin$ of
   // seneca-web, which replaces the plugin$ of the route action so that
